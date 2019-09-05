@@ -16,18 +16,27 @@ class TimeSheet extends React.Component {
 
     let technicians = ['Grace Hopper', 'Stephen Hawking', 'Denis Klatt', 'Rita Mordio', 'Kanru Hua', 'Hatsune Miku', 'Eleanor Forte', 'Aki Glancy', 'Toby Fox', 'Tony Barrett', 'Uta Utane', 'Aiko Kikyuune'];
 
+    let tableData = {};
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
+      day => {
+        tableData[day] = {from:0, to:0};
+      }
+    );
+
     this.state = {
       entryType:"regular",
       technicians:technicians,
       technician:"",
       setName:null,
       expirationDate:"",
+      tableData:tableData,
     };
 
     this.handleToggleClick = this.handleToggleClick.bind(this);
     this.handleSelectName = this.handleSelectName.bind(this);
     this.getSetName = this.getSetName.bind(this);
     this.handleDateSelect = this.handleDateSelect.bind(this);
+    this.handleSetTime = this.handleSetTime.bind(this);
   }
 
   //Updates the entry type
@@ -68,13 +77,20 @@ class TimeSheet extends React.Component {
     //console.log(formatDate);
   }
 
+  //Updates values when TimeTable is updated
+  //Called from TimeTable
+  handleSetTime(newTableData) {
+    this.setState({tableData:newTableData});
+    //console.log(newTableData);
+  }
+
   render () {
     //Layout is handled via CSS
     return (
       <div className="grid-main">
       <ToggleButtons onToggleClick={this.handleToggleClick} />
       <SearchBar searchList={this.state.technicians} onSelect={this.handleSelectName} />
-      <TimeTable />
+      <TimeTable onChange={this.handleSetTime}/>
       <NameEntry registerSetName={this.getSetName} onSelect={this.handleSelectName} />
       <DateEntry onSelect={this.handleDateSelect} />
       <NameList nameList={this.state.technicians} onSelect={this.handleSelectName} />
@@ -157,10 +173,60 @@ class SearchBar extends React.Component {
 }
 
 class TimeTable extends React.Component {
+  constructor(props){
+    super(props)
+
+    let tableData = {};
+    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
+      day => {
+        tableData[day] = {from:0, to:0};
+      }
+    );
+
+    this.state = {tableData:tableData};
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event, day, entry){
+    //console.log(event.target.value + " " + day + " " + entry);
+    let updateData = this.state.tableData;
+    if (event.target.value){
+      updateData[day][entry] = parseInt(event.target.value);
+      this.setState({tableData:updateData});
+      this.props.onChange(updateData);
+    } else {
+      updateData[day][entry] = 0;
+      this.setState({tableData:updateData});
+      this.props.onChange(updateData);
+    }
+  }
+
   render () {
+    let tableStruct = [];
+    Object.keys(this.state.tableData).forEach(
+      key => {
+          tableStruct.push(
+            <tr key={key+"_row"}>
+              <td className="table-format" key={key+"_name"}>{key}</td>
+              <td className="table-format" key={key+"_from_col"}><input type="number" min="0" max="24" value={this.state.tableData[key].from} onChange={(event) => {this.handleChange(event, key, "from")}}/></td>
+              <td className="table-format" key={key+"_to_col"}><input type="number" min="0" max="24" value={this.state.tableData[key].to} onChange={(event) => {this.handleChange(event, key, "to")}}/></td>
+            </tr>
+          );
+      }
+    );
     return (
       <div className="grid-item-time-table">
-      <h1> TimeTable </h1>
+      <table className="max-fill table-format">
+        <tbody>
+          <tr>
+            <th className="table-head"></th>
+            <th className="table-head">From<font color="red"> <strong>*</strong></font></th>
+            <th className="table-head">To<font color="red"> <strong>*</strong></font></th>
+          </tr>
+          {tableStruct}
+        </tbody>
+      </table>
       </div>
     );
   }
