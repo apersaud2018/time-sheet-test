@@ -1,33 +1,119 @@
-.App {
-  text-align: center;
+.grid-main {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto;
+  grid-template-rows: 80px 17vh 17vh 17vh auto auto auto;
+  padding: 10px;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.grid-item-toggle-button {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  grid-column: 2 / span 3;
+  grid-row: 1;
+  padding: 5px;
+  /* background-color: #ff0000; */
+}
+
+.grid-item-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-column: 9 / span 3;
+  grid-row: 1;
+  padding: 5px;
+  /* background-color: #990000; */
+}
+
+.grid-item-time-table {
+  grid-column: 2 / span 3;
+  grid-row: 2 / span 3;
+  padding: 5px;
+  background-color: #00ff00;
+}
+
+.grid-item-name-entry {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  grid-column: 6 / span 2;
+  grid-row: 2;
+  padding: 5px;
+  /* background-color: #009900; */
+}
+
+.grid-item-date-entry {
+  grid-column: 6 / span 2;
+  grid-row: 3;
+  padding: 5px;
+  /* background-color: #0000ff; */
+}
+
+.grid-item-name-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  grid-column: 9 / span 3;
+  grid-row: 2 / span 3;
+  padding: 5px;
+  /* background-color: #000099; */
+}
+
+.max-fill {
+  width: 100%;
+  height: 100%;
+}
+
+.grid-item-description-entry {
+  grid-column: 2 / span 3;
+  grid-row: 5;
+  padding: 5px;
+  background-color: #ff00ff;
+}
+
+.grid-item-progress-bar {
+  grid-column: 5 / span 4;
+  grid-row: 5;
+  padding: 5px;
+  background-color: #990099;
+}
+
+.grid-item-submit-button {
+  grid-column: 6 / span 2;
+  grid-row: 6;
+  padding: 5px;
+  background-color: #999999;
+}
+
+.tt-button {
+  -webkit-transition-duration: 0.2s; /* Safari */
+  transition-duration: 0.2s;
+  background-color: #555555;
+  color: white;
+  display: inline;
+
+  width: 50%;
+  height: 50%;
+
+  border-width:3px;
+  border-style:outset;
+}
+
+.tt-button:hover {
+  background-color: #777777;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
+.tt-button-selected {
+  background-color: #999999;
+  color: white;
+  display: inline;
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  width: 50%;
+  height: 50%;
+
+  border-width:3px;
+  border-style:inset;
 }
