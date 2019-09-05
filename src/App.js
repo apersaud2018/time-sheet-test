@@ -14,7 +14,7 @@ class TimeSheet extends React.Component {
   constructor(props){
     super(props);
 
-    let technicians = ['Grace Hopper', 'Stephen Hawking', 'Denis Klatt', 'Rita Mordio', 'Kanru Hua', 'Hatsune Miku', 'Eleanor Forte', 'Aki Glancy', 'Toby Fox', 'Tony Barrett', 'Uta Utane', 'Aiko Kikyuune'];
+    let technicians = ['Grace Hopper', 'Stephen Hawking', 'Denis Klatt', 'Rita Mordio', 'Kanru Hua', 'Miku Hatsune', 'Eleanor Forte', 'Aki Glancy', 'Toby Fox', 'Tony Barrett', 'Uta Utane', 'Aiko Kikyuune'];
 
     let tableData = {};
     ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
@@ -31,14 +31,15 @@ class TimeSheet extends React.Component {
       expirationDate:"",
       tableData:tableData,
       description:"",
+      progress:0,
     };
 
     this.handleToggleClick = this.handleToggleClick.bind(this);
     this.handleSelectName = this.handleSelectName.bind(this);
-    this.getSetName = this.getSetName.bind(this);
     this.handleDateSelect = this.handleDateSelect.bind(this);
     this.handleSetTime = this.handleSetTime.bind(this);
     this.handleSetDescription = this.handleSetDescription.bind(this);
+    this.validateData = this.validateData.bind(this);
   }
 
   //Updates the entry type
@@ -46,6 +47,7 @@ class TimeSheet extends React.Component {
   handleToggleClick(newEntryType) {
     //console.log(newEntryType);
     this.setState({entryType:newEntryType});
+    setTimeout(this.validateData, 100);
   }
 
   //Updates values when a name is selected
@@ -55,13 +57,8 @@ class TimeSheet extends React.Component {
     if (this.state.setName) {
       this.state.setName(newName);
     }
-    console.log(newName);
-  }
-
-  //Used to get the setter function NameEntry
-  //Called from NameList
-  getSetName(func) {
-    this.setState({setName:func});
+    //console.log(newName);
+    setTimeout(this.validateData, 100);
   }
 
   //Updates and formats expiration date
@@ -77,12 +74,14 @@ class TimeSheet extends React.Component {
     }
     this.setState({expirationDate:formatDate});
     //console.log(formatDate);
+    setTimeout(this.validateData, 100);
   }
 
   //Updates values when TimeTable is updated
   //Called from TimeTable
   handleSetTime(newTableData) {
     this.setState({tableData:newTableData});
+    setTimeout(this.validateData, 100);
     //console.log(newTableData);
   }
 
@@ -91,6 +90,64 @@ class TimeSheet extends React.Component {
   handleSetDescription(newdesc) {
     //console.log(newdesc);
     this.setState({description:newdesc})
+    setTimeout(this.validateData, 100);
+  }
+
+  validateData(doListError = false){
+    let errors = [];
+    let count = 0;
+
+    //Check name
+    if (this.state.technician.length > 0){
+      count++;
+    } else {
+      errors.push("Missing technician name");
+    }
+
+    //Check TimeTable
+    let totalTime = 0;
+    let validTimes = true;
+    Object.keys(this.state.tableData).forEach(
+      day => {
+        if (this.state.tableData[day].from <= this.state.tableData[day].to){
+          totalTime += this.state.tableData[day].to - this.state.tableData[day].from;
+        } else {
+          errors.push("Invalid times for "+day);
+          validTimes = false
+        }
+      }
+    );
+    if (totalTime === 0){
+      validTimes = false;
+      errors.push("No time entered")
+    }
+    if (validTimes){
+      count++;
+    }
+
+    //Check Description
+    if (this.state.description.length > 0){
+      count++;
+    } else {
+      errors.push("Missing description");
+    }
+
+    //Check Expiration Date
+    //console.log(this.state.expirationDate + " " + this.state.expirationDate.length);
+    if (this.state.expirationDate.length > 3){
+      count++;
+    } else {
+      errors.push("Missing expiration date");
+    }
+
+    if (doListError){
+      alert(errors.join("\n"));
+    }
+
+    this.setState({progress:count});
+
+    //console.log(count);
+
   }
 
   render () {
@@ -100,11 +157,11 @@ class TimeSheet extends React.Component {
       <ToggleButtons onToggleClick={this.handleToggleClick} />
       <SearchBar searchList={this.state.technicians} onSelect={this.handleSelectName} />
       <TimeTable onChange={this.handleSetTime}/>
-      <NameEntry registerSetName={this.getSetName} onSelect={this.handleSelectName} />
+      <NameEntry technician={this.state.technician} onSelect={this.handleSelectName} />
       <DateEntry onSelect={this.handleDateSelect} />
       <NameList nameList={this.state.technicians} onSelect={this.handleSelectName} />
       <DescriptionEntry onSelect={this.handleSetDescription}/>
-      <ProgressBar />
+      <ProgressBar progress={this.state.progress}/>
       <SubmitButton />
       </div>
     );
@@ -244,17 +301,8 @@ class TimeTable extends React.Component {
 class NameEntry extends React.Component {
   constructor(props){
     super(props);
-
     this.state = {value:""};
-
     this.handleChange = this.handleChange.bind(this);
-    this.setName = this.setName.bind(this);
-
-    this.props.registerSetName(this.setName)
-  }
-
-  setName(name) {
-    this.setState({value:name});
   }
 
   handleChange(event) {
@@ -266,7 +314,7 @@ class NameEntry extends React.Component {
     return (
       <div className="grid-item-name-entry">
       <label>
-        Tech Lead <input type="text" placeholder="Full Name" value={this.state.value} onChange={this.handleChange} /> <font color="red"> <strong>*</strong></font>
+        Tech Lead <input type="text" placeholder="Full Name" value={this.props.technician} onChange={this.handleChange} /> <font color="red"> <strong>*</strong></font>
       </label>
       </div>
     );
@@ -364,7 +412,7 @@ class ProgressBar extends React.Component {
   render () {
     return (
       <div className="grid-item-progress-bar">
-      <h1> ProgressBar </h1>
+      <progress className="desc-fill" value={this.props.progress} max="4"/>
       </div>
     );
   }

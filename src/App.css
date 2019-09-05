@@ -92,10 +92,18 @@
 }
 
 .grid-item-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   grid-column: 5 / span 4;
   grid-row: 5;
   padding: 5px;
-  background-color: #990099;
+  /* background-color: #990099; */
+}
+
+.desc-fill {
+  width: 80%;
 }
 
 .grid-item-submit-button {
