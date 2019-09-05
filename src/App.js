@@ -274,7 +274,7 @@ class TimeTable extends React.Component {
       key => {
           tableStruct.push(
             <tr key={key+"_row"}>
-              <td className="table-format" key={key+"_name"}>{key}</td>
+              <td className="table-format" key={key+"_name"}>{ this.state.tableData[key].from <= this.state.tableData[key].to ? key : <font color="red">{key}</font>}</td>
               <td className="table-format" key={key+"_from_col"}><input type="number" min="0" max="24" value={this.state.tableData[key].from} onChange={(event) => {this.handleChange(event, key, "from")}}/></td>
               <td className="table-format" key={key+"_to_col"}><input type="number" min="0" max="24" value={this.state.tableData[key].to} onChange={(event) => {this.handleChange(event, key, "to")}}/></td>
             </tr>
@@ -314,7 +314,7 @@ class NameEntry extends React.Component {
     return (
       <div className="grid-item-name-entry">
       <label>
-        Tech Lead <input type="text" placeholder="Full Name" value={this.props.technician} onChange={this.handleChange} /> <font color="red"> <strong>*</strong></font>
+        {this.props.technician.length > 0 ? "Tech Lead" : <font color="red">Tech Lead</font>} <input type="text" placeholder="Full Name" value={this.props.technician} onChange={this.handleChange} /> <font color="red"> <strong>*</strong></font>
       </label>
       </div>
     );
@@ -339,7 +339,7 @@ class DateEntry extends React.Component {
     return (
       <div className="grid-item-date-entry">
       <label>
-        Expiration Date <input type="date" placeholder="Select Date" value={this.state.value} onChange={this.handleChange} /> <font color="red"> <strong>*</strong></font>
+        {this.state.value.length > 0 ? "Expiration Date" : <font color="red">Expiration Date</font>} <input type="date" placeholder="Select Date" value={this.state.value} onChange={this.handleChange} /> <font color="red"> <strong>*</strong></font>
       </label>
       </div>
     );
@@ -400,7 +400,7 @@ class DescriptionEntry extends React.Component {
     return (
       <div className="grid-item-description-entry">
       <label>
-        Description <font color="red"> <strong>*</strong></font>
+        {this.state.value.length > 0 ? "Description" : <font color="red">Description</font>} <font color="red"> <strong>*</strong></font>
       </label>
       <textarea className="desc-fill" placeholder="Enter description" onChange={this.handleChange}></textarea>
       </div>
