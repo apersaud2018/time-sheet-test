@@ -30,6 +30,7 @@ class TimeSheet extends React.Component {
       setName:null,
       expirationDate:"",
       tableData:tableData,
+      description:"",
     };
 
     this.handleToggleClick = this.handleToggleClick.bind(this);
@@ -37,6 +38,7 @@ class TimeSheet extends React.Component {
     this.getSetName = this.getSetName.bind(this);
     this.handleDateSelect = this.handleDateSelect.bind(this);
     this.handleSetTime = this.handleSetTime.bind(this);
+    this.handleSetDescription = this.handleSetDescription.bind(this);
   }
 
   //Updates the entry type
@@ -84,6 +86,13 @@ class TimeSheet extends React.Component {
     //console.log(newTableData);
   }
 
+  //Updates value when description is updated
+  //Called from DescriptionEntry
+  handleSetDescription(newdesc) {
+    //console.log(newdesc);
+    this.setState({description:newdesc})
+  }
+
   render () {
     //Layout is handled via CSS
     return (
@@ -94,7 +103,7 @@ class TimeSheet extends React.Component {
       <NameEntry registerSetName={this.getSetName} onSelect={this.handleSelectName} />
       <DateEntry onSelect={this.handleDateSelect} />
       <NameList nameList={this.state.technicians} onSelect={this.handleSelectName} />
-      <DescriptionEntry />
+      <DescriptionEntry onSelect={this.handleSetDescription}/>
       <ProgressBar />
       <SubmitButton />
       </div>
@@ -326,10 +335,26 @@ class NameList extends React.Component {
 }
 
 class DescriptionEntry extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {value: ''};
+
+    //this.handleToggle = this.handleToggle.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({value: event.target.value});
+    this.props.onSelect(event.target.value);
+  }
+
   render () {
     return (
       <div className="grid-item-description-entry">
-      <h1> DescriptionEntry </h1>
+      <label>
+        Description <font color="red"> <strong>*</strong></font>
+      </label>
+      <textarea className="desc-fill" placeholder="Enter description" onChange={this.handleChange}></textarea>
       </div>
     );
   }
