@@ -1,6 +1,6 @@
 import React from 'react';
-//import logo from './logo.svg';
 import './App.css';
+import { saveAs } from 'file-saver';
 
 //This function is called from index.js to render the App
 function App() {
@@ -40,6 +40,7 @@ class TimeSheet extends React.Component {
     this.handleSetTime = this.handleSetTime.bind(this);
     this.handleSetDescription = this.handleSetDescription.bind(this);
     this.validateData = this.validateData.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   //Updates the entry type
@@ -93,6 +94,37 @@ class TimeSheet extends React.Component {
     setTimeout(this.validateData, 100);
   }
 
+  //Updates value when description is updated
+  //Called from DescriptionEntry
+  handleSubmit() {
+    if (this.validateData(true)){
+      console.log("Ready to submit");
+      let output = {
+        "ShiftType":this.state.entryType.charAt(0).toUpperCase() + this.state.entryType.substring(1),
+        "Tech Lead":this.state.technician,
+        "ShiftDetails": []
+      };
+
+      //order may be mixed up, hard coded key values to ensure order is preserved
+      ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
+        day => {
+          output.ShiftDetails.push(
+            {
+              "Day":day,
+              "FromTime":(this.state.tableData[day].from+":00"),
+              "EndTime":(this.state.tableData[day].to+":00")
+            }
+          )
+        }
+      );
+
+    let file = new Blob([JSON.stringify(output)], {type: "application/json"}); //create new file from data
+    saveAs(file, "entry.json");
+
+
+    }
+  }
+
   validateData(doListError = false){
     let errors = [];
     let count = 0;
@@ -140,13 +172,14 @@ class TimeSheet extends React.Component {
       errors.push("Missing expiration date");
     }
 
-    if (doListError){
+    if (doListError &&  errors.length > 0){
       alert(errors.join("\n"));
     }
 
     this.setState({progress:count});
 
     //console.log(count);
+    return count === 4;
 
   }
 
@@ -162,7 +195,7 @@ class TimeSheet extends React.Component {
       <NameList nameList={this.state.technicians} onSelect={this.handleSelectName} />
       <DescriptionEntry onSelect={this.handleSetDescription}/>
       <ProgressBar progress={this.state.progress}/>
-      <SubmitButton />
+      <SubmitButton onClick={this.handleSubmit} />
       </div>
     );
   }
@@ -422,32 +455,10 @@ class SubmitButton extends React.Component {
   render () {
     return (
       <div className="grid-item-submit-button">
-      <h1> SubmitButton </h1>
+        <button onClick={this.props.onClick}>Submit</button>
       </div>
     );
   }
 }
-
-// function App_ref() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
 
 export default App;

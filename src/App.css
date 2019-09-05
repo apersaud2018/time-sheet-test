@@ -1,7 +1,7 @@
 .grid-main {
   display: grid;
   grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto;
-  grid-template-rows: 80px 17vh 17vh 17vh auto auto auto;
+  grid-template-rows: 80px 17vh 17vh 17vh auto auto auto auto;
   padding: 10px;
 }
 
@@ -97,7 +97,7 @@
   justify-content: center;
 
   grid-column: 5 / span 4;
-  grid-row: 5;
+  grid-row: 6;
   padding: 5px;
   /* background-color: #990099; */
 }
@@ -107,10 +107,14 @@
 }
 
 .grid-item-submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   grid-column: 6 / span 2;
-  grid-row: 6;
+  grid-row: 7;
   padding: 5px;
-  background-color: #999999;
+  /* background-color: #999999; */
 }
 
 .tt-button {
