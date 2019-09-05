@@ -445,7 +445,7 @@ class ProgressBar extends React.Component {
   render () {
     return (
       <div className="grid-item-progress-bar">
-      <progress className="desc-fill" value={this.props.progress} max="4"/>
+      <progress className="prog-fill" value={this.props.progress} max="4"/>
       </div>
     );
   }
