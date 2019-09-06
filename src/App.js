@@ -101,7 +101,8 @@ class TimeSheet extends React.Component {
       console.log("Ready to submit");
       let output = {
         "ShiftType":this.state.entryType.charAt(0).toUpperCase() + this.state.entryType.substring(1),
-        "Tech Lead":this.state.technician,
+        "TechLead":this.state.technician,
+        "Description":this.state.description,
         "ShiftDetails": []
       };
 
