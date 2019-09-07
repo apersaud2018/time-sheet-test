@@ -1,8 +1,7 @@
 ## Project Notes
 
 Time table is done in a 0-24 hour format to allow for a full 24 hour range.
-The description field was saved as "Description" in the json file.
-To maintain consitency, "Tech Lead" was renamed "TechLead".
+The description field was saved as "Description" in the JSON file.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver'; //extra import to assist with saveing files
 
 //This function is called from index.js to render the App
 function App() {
@@ -14,8 +14,10 @@ class TimeSheet extends React.Component {
   constructor(props){
     super(props);
 
+    //list of hardcoded technicians
     let technicians = ['Grace Hopper', 'Stephen Hawking', 'Denis Klatt', 'Rita Mordio', 'Kanru Hua', 'Miku Hatsune', 'Eleanor Forte', 'Aki Glancy', 'Toby Fox', 'Tony Barrett', 'Uta Utane', 'Aiko Kikyuune'];
 
+    //generates default table state
     let tableData = {};
     ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
       day => {
@@ -24,12 +26,11 @@ class TimeSheet extends React.Component {
     );
 
     this.state = {
-      entryType:"regular",
+      entryType:"Regular", //is it a Regular or Extra shift
       technicians:technicians,
-      technician:"",
-      setName:null,
+      technician:"", //The tech lead
       expirationDate:"",
-      tableData:tableData,
+      tableData:tableData, //Object containing data about the timetable
       description:"",
       progress:0,
     };
@@ -46,8 +47,8 @@ class TimeSheet extends React.Component {
   //Updates the entry type
   //Called by ToggleButtons
   handleToggleClick(newEntryType) {
-    //console.log(newEntryType);
     this.setState({entryType:newEntryType});
+    //delay added to give time for setState to run
     setTimeout(this.validateData, 100);
   }
 
@@ -58,15 +59,16 @@ class TimeSheet extends React.Component {
     if (this.state.setName) {
       this.state.setName(newName);
     }
-    //console.log(newName);
+    //delay added to give time for setState to run
     setTimeout(this.validateData, 100);
   }
 
   //Updates and formats expiration date
   //Called from DateEntry
   handleDateSelect (date){
-    let splitDate = date.split("-");
+    let splitDate = date.split("-"); //date comes in format yyyy-mm-dd
     let formatDate;
+    //this formats the date to mm-dd-yyyy if the input is a date
     if (splitDate.length === 3){
       formatDate = (splitDate[1].length === 1 ? "0"+splitDate[1] : splitDate[1]) + "/" + (splitDate[2].length === 1 ? "0"+splitDate[2] : splitDate[2]) + "/" + splitDate[0];
     }
@@ -74,7 +76,7 @@ class TimeSheet extends React.Component {
       formatDate="";
     }
     this.setState({expirationDate:formatDate});
-    //console.log(formatDate);
+    //delay added to give time for setState to run
     setTimeout(this.validateData, 100);
   }
 
@@ -82,15 +84,15 @@ class TimeSheet extends React.Component {
   //Called from TimeTable
   handleSetTime(newTableData) {
     this.setState({tableData:newTableData});
+    //delay added to give time for setState to run
     setTimeout(this.validateData, 100);
-    //console.log(newTableData);
   }
 
   //Updates value when description is updated
   //Called from DescriptionEntry
   handleSetDescription(newdesc) {
-    //console.log(newdesc);
     this.setState({description:newdesc})
+    //delay added to give time for setState to run
     setTimeout(this.validateData, 100);
   }
 
@@ -100,13 +102,14 @@ class TimeSheet extends React.Component {
     if (this.validateData(true)){
       console.log("Ready to submit");
       let output = {
-        "ShiftType":this.state.entryType.charAt(0).toUpperCase() + this.state.entryType.substring(1),
-        "TechLead":this.state.technician,
+        "ShiftType":this.state.entryType,
+        "Tech Lead":this.state.technician,
+        "Expiration Date": this.state.expirationDate,
         "Description":this.state.description,
         "ShiftDetails": []
       };
 
-      //order may be mixed up, hard coded key values to ensure order is preserved
+      //may be out of order, hard coded key values to ensure order is preserved
       ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
         day => {
           output.ShiftDetails.push(
@@ -119,18 +122,20 @@ class TimeSheet extends React.Component {
         }
       );
 
-    let file = new Blob([JSON.stringify(output)], {type: "application/json"}); //create new file from data
-    saveAs(file, "entry.json");
+    let file = new Blob([JSON.stringify(output, null, 2)], {type: "application/json"}); //create new file from data
+    saveAs(file, "entry.json"); //trigger download useing the file-saver library
 
 
     }
   }
 
+  //Checks state to determine how many required fields pass as done correctly
   validateData(doListError = false){
-    let errors = [];
-    let count = 0;
+    let errors = []; //Accumulates a list of failed checks to notify user
+    let count = 0; //Tracks how many fields passed
 
-    //Check name
+    //Check Name
+    //Is valid if anything is typed into the field
     if (this.state.technician.length > 0){
       count++;
     } else {
@@ -138,6 +143,7 @@ class TimeSheet extends React.Component {
     }
 
     //Check TimeTable
+    //Is valid when there is more than 0 hours registered and no From field is after the to field
     let totalTime = 0;
     let validTimes = true;
     Object.keys(this.state.tableData).forEach(
@@ -159,6 +165,7 @@ class TimeSheet extends React.Component {
     }
 
     //Check Description
+    //Is valid if anything is typed into the field
     if (this.state.description.length > 0){
       count++;
     } else {
@@ -166,26 +173,28 @@ class TimeSheet extends React.Component {
     }
 
     //Check Expiration Date
-    //console.log(this.state.expirationDate + " " + this.state.expirationDate.length);
-    if (this.state.expirationDate.length > 3){
+    //Is valid if something is in the field
+    if (this.state.expirationDate.length > 0){
       count++;
     } else {
       errors.push("Missing expiration date");
     }
 
+    //This is used to control if the user should be notified
+    //It is able to be toggled off as this validation runs everytime a field updates
     if (doListError &&  errors.length > 0){
       alert(errors.join("\n"));
     }
 
     this.setState({progress:count});
 
-    //console.log(count);
+    //returns if all fields passed or not
     return count === 4;
 
   }
 
   render () {
-    //Layout is handled via CSS
+    //Layout is handled via CSS and the grid layout
     return (
       <div className="grid-main">
       <ToggleButtons onToggleClick={this.handleToggleClick} />
@@ -202,20 +211,22 @@ class TimeSheet extends React.Component {
   }
 }
 
-
+//Set of buttons that indicate what type of shift type the data is for
 class ToggleButtons extends React.Component {
   constructor(props){
     super(props)
 
-    this.state = {entryType:"regular", regularStyle:"tt-button-selected", extraStyle:"tt-button"};
+    this.state = {entryType:"Regular", regularStyle:"tt-button-selected", extraStyle:"tt-button"};
 
     this.handleToggle = this.handleToggle.bind(this);
   }
 
   handleToggle(caller){
+    //only updates of value is different
     if (caller !== this.state.entryType){
-      let updateRegular = caller === "regular" ? "tt-button-selected" : "tt-button";
-      let updateExtra = caller === "extra" ? "tt-button-selected" : "tt-button";
+      //sets style depending if selected or not
+      let updateRegular = caller === "Regular" ? "tt-button-selected" : "tt-button";
+      let updateExtra = caller === "Extra" ? "tt-button-selected" : "tt-button";
       this.setState({entryType:caller, regularStyle:updateRegular, extraStyle:updateExtra})
       this.props.onToggleClick(caller);
     }
@@ -224,18 +235,19 @@ class ToggleButtons extends React.Component {
   render () {
     return (
       <div className="grid-item-toggle-button">
-      <button className={this.state.regularStyle} onClick = {() => {this.handleToggle("regular")}}>Regular</button>
-      <button className={this.state.extraStyle} onClick = {() => {this.handleToggle("extra")}}>Extra</button>
+      <button className={this.state.regularStyle} onClick = {() => {this.handleToggle("Regular")}}>Regular</button>
+      <button className={this.state.extraStyle} onClick = {() => {this.handleToggle("Extra")}}>Extra</button>
       </div>
     );
   }
 }
 
+//A text input that searches a given list of Technician names
 class SearchBar extends React.Component {
   constructor(props){
     super(props);
 
-    let searchList = [];
+    let searchList = []; //Pre-generate JSX for search bar
      if (this.props.searchList){
        searchList = this.props.searchList.map(
          (tech, i) => {
@@ -246,12 +258,12 @@ class SearchBar extends React.Component {
 
     this.state = {searchOptions:searchList, value: ''};
 
-    //this.handleToggle = this.handleToggle.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange(event) {
     this.setState({value: event.target.value});
+    //Only send back a value if it matches an item in the passed list
     if (this.props.searchList.includes(event.target.value)){
       this.props.onSelect(event.target.value);
     }
@@ -272,10 +284,12 @@ class SearchBar extends React.Component {
   }
 }
 
+//A table that allows shift times to be entered for each day
 class TimeTable extends React.Component {
   constructor(props){
     super(props)
 
+    //generates default table state
     let tableData = {};
     ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(
       day => {
@@ -288,8 +302,8 @@ class TimeTable extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  //copy current state and modify it based on passed parameters
   handleChange(event, day, entry){
-    //console.log(event.target.value + " " + day + " " + entry);
     let updateData = this.state.tableData;
     if (event.target.value){
       updateData[day][entry] = parseInt(event.target.value);
@@ -304,6 +318,8 @@ class TimeTable extends React.Component {
 
   render () {
     let tableStruct = [];
+    //generate table entries with conditional formatting
+    //conditional formating indicates if From is larger than To
     Object.keys(this.state.tableData).forEach(
       key => {
           tableStruct.push(
@@ -332,6 +348,7 @@ class TimeTable extends React.Component {
   }
 }
 
+//Entry field for the Technician's name
 class NameEntry extends React.Component {
   constructor(props){
     super(props);
@@ -355,6 +372,7 @@ class NameEntry extends React.Component {
   }
 }
 
+//Entry field for the expiration date
 class DateEntry extends React.Component {
   constructor(props){
     super(props);
@@ -380,6 +398,7 @@ class DateEntry extends React.Component {
   }
 }
 
+//List that displays all Technicians
 class NameList extends React.Component {
   constructor(props){
     super(props);
@@ -388,7 +407,6 @@ class NameList extends React.Component {
      if (this.props.nameList){
        nameList = this.props.nameList.map(
          (tech, i) => {
-           //console.log(tech);
            return <option key={"name_item_"+i} value={tech}>{tech}</option>;
          }
        );
@@ -396,7 +414,6 @@ class NameList extends React.Component {
 
     this.state = {nameList:nameList, value: ''};
 
-    //this.handleToggle = this.handleToggle.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -416,12 +433,12 @@ class NameList extends React.Component {
   }
 }
 
+//Text area for writting a description
 class DescriptionEntry extends React.Component {
   constructor(props){
     super(props);
     this.state = {value: ''};
 
-    //this.handleToggle = this.handleToggle.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -442,6 +459,7 @@ class DescriptionEntry extends React.Component {
   }
 }
 
+//A progress bar that indicates how many important fields are completed
 class ProgressBar extends React.Component {
   render () {
     return (
@@ -452,6 +470,7 @@ class ProgressBar extends React.Component {
   }
 }
 
+//A button that starts the submit sequence
 class SubmitButton extends React.Component {
   render () {
     return (
